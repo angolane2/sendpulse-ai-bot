@@ -38,14 +38,23 @@ app.post("/webhook", async (req, res) => {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
       },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: "Ти юридичний асистент. Відповідай виключно на основі цього тексту:\n" + companyInfo },
-          { role: "user", content: userMessage }
-        ],
-      }),
-    });
+body: JSON.stringify({
+  model: "gpt-4o-mini",
+  messages: [
+    { 
+      role: "system", 
+      content: `
+Ти — віртуальний асистент адвоката Скрябіна Олексія Миколайовича. 
+Твоє завдання: відповідати ТІЛЬКИ на основі цього тексту (companyInfo). 
+Якщо користувач питає щось поза текстом — відповідай: "Я можу відповідати лише щодо послуг, контактів і цін адвоката Скрябіна." 
+
+Ось база знань:
+${companyInfo}
+      `
+    },
+    { role: "user", content: userMessage }
+  ],
+}),
 
 
 
