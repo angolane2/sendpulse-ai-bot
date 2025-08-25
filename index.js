@@ -1,9 +1,8 @@
 import express from "express";
-import bodyParser from "body-parser";
 import fetch from "node-fetch";
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json()); // bodyParser уже не нужен
 
 // 🔹 Ваш текст (база знаний)
 const companyInfo = `
@@ -31,32 +30,30 @@ app.post("/webhook", async (req, res) => {
   try {
     const userMessage = (req.body.message || "").toLowerCase();
 
-    // Запит до OpenAI з вашим текстом
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
       },
-body: JSON.stringify({
-  model: "gpt-4o-mini",
-  messages: [
-    { 
-      role: "system", 
-      content: `
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { 
+            role: "system", 
+            content: `
 Ти — віртуальний асистент адвоката Скрябіна Олексія Миколайовича. 
 Твоє завдання: відповідати ТІЛЬКИ на основі цього тексту (companyInfo). 
 Якщо користувач питає щось поза текстом — відповідай: "Я можу відповідати лише щодо послуг, контактів і цін адвоката Скрябіна." 
 
 Ось база знань:
 ${companyInfo}
-      `
-    },
-    { role: "user", content: userMessage }
-  ],
-}),
-
-
+            `
+          },
+          { role: "user", content: userMessage }
+        ],
+      }),
+    });
 
     const data = await response.json();
 
